@@ -29,7 +29,7 @@ jobs:
 
     - name: Set up Google Cloud credentials
       run: |
-        echo "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > testmedium.json
+        echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_V }}" > testmedium.json
         export GOOGLE_APPLICATION_CREDENTIALS="testmedium.json"
 
     - name: Run the Python script
