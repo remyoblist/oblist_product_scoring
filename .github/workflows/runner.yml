@@ -1,10 +1,14 @@
-name: Run Python Script
+name: Excute Scoring Runner
 
 on:
+  push:
+    branches:
+      - main
   schedule:
-    # Run every 24 hours
-    - cron: "0 0 * * *"
-
+    - cron: '0 0 * * *'  # Example: run every day at midnight UTC
+    
+  # This allows manual triggers for the workflow
+  workflow_dispatch:  # Enables manual trigger
 jobs:
   run-script:
     runs-on: ubuntu-latest
