@@ -31,6 +31,11 @@ jobs:
       run: |
         echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 --decode > $GITHUB_WORKSPACE/gcloud-service-key.json
         echo "GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/gcloud-service-key.json" >> $GITHUB_ENV
+        chmod 600 $GITHUB_WORKSPACE/gcloud-service-key.json
+
+    - name: Check length of decoded file
+      run: |
+        echo "Decoded file length: $(wc -c < $GITHUB_WORKSPACE/gcloud-service-key.json)"
 
     - name: Run the Python script
       run: |
