@@ -10,10 +10,10 @@ googleapis-common-protos==1.65.0
 grpcio==1.66.2
 grpcio-status==1.66.2
 idna==3.10
-numpy==2.1.1
+numpy==2.2
 pandas==2.2.3
 proto-plus==1.24.0
-protobuf==5.28.2
+protobuf==3.20.0
 pyactiveresource==2.2.2
 pyasn1==0.6.1
 pyasn1_modules==0.4.1
