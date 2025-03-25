@@ -10,8 +10,13 @@ from google.analytics.data_v1beta.types import DateRange, Dimension, Metric, Run
 def fetch_product_score(market_name) :
     import pandas as pd
     Boost_Value = 0.2
+    # Access environment variable from GitHub Actions
+    GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+    if GOOGLE_APPLICATION_CREDENTIALS:
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = GOOGLE_APPLICATION_CREDENTIALS
+    else:
+        raise EnvironmentError("The environment variable GOOGLE_APPLICATION_CREDENTIALS is not set.")
 
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'testmedium.json'
 
     client = BetaAnalyticsDataClient()
 
