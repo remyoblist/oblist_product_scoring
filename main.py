@@ -531,12 +531,12 @@ def main():
     "shopify_theoblistproducts_united_states_en",
     "shopify_theoblistproducts_united_states_fr"
 ]
-    credentials_file = 'testmedium.json'
+    GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
 
     # Use ThreadPoolExecutor for threading
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # Submit tasks to the executor for each market
-        futures = [executor.submit(process_market, market, credentials_file) for market in main_markets]
+        futures = [executor.submit(process_market, market, GOOGLE_APPLICATION_CREDENTIALS) for market in main_markets]
 
         # Optionally, wait for all threads to complete
         for future in concurrent.futures.as_completed(futures):
