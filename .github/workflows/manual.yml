@@ -1,0 +1,42 @@
+name: Excute Scoring Runner
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'  # Example: run every day at midnight UTC
+    
+  # This allows manual triggers for the workflow
+  workflow_dispatch:  # Enables manual trigger
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # Make sure requirements.txt is updated
+
+    - name: Set up Google Cloud credentials
+      run: |
+        echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 --decode > $GITHUB_WORKSPACE/gcloud-service-key.json
+        echo "GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/gcloud-service-key.json" >> $GITHUB_ENV
+        chmod 600 $GITHUB_WORKSPACE/gcloud-service-key.json
+
+    - name: Check length of decoded file
+      run: |
+        echo "Decoded file length: $(wc -c < $GITHUB_WORKSPACE/gcloud-service-key.json)"
+
+    - name: Run the Python script
+      run: |
+        python main.py
