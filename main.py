@@ -3,6 +3,8 @@ import pandas as pd
 import itertools
 from datetime import datetime, timedelta
 from google.api_core import exceptions
+import json
+import tempfile
 
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import DateRange, Dimension, Metric, RunReportRequest
@@ -10,12 +12,26 @@ from google.analytics.data_v1beta.types import DateRange, Dimension, Metric, Run
 def fetch_product_score(market_name) :
     import pandas as pd
     Boost_Value = 0.2
-    # Access environment variable from GitHub Actions
-    GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
-    if GOOGLE_APPLICATION_CREDENTIALS:
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = GOOGLE_APPLICATION_CREDENTIALS
-    else:
-        raise EnvironmentError("The environment variable GOOGLE_APPLICATION_CREDENTIALS is not set.")
+    # Reconstruct the credentials JSON from individual env variables
+    google_creds = {
+        "type": os.getenv("GOOGLE_TYPE"),
+        "project_id": os.getenv("GOOGLE_PROJECT_ID"),
+        "private_key_id": os.getenv("GOOGLE_PRIVATE_KEY_ID"),
+        "private_key": os.getenv("GOOGLE_PRIVATE_KEY").replace('\\n', '\n') if os.getenv("GOOGLE_PRIVATE_KEY") else None,
+        "client_email": os.getenv("GOOGLE_CLIENT_EMAIL"),
+        "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+        "auth_uri": os.getenv("GOOGLE_AUTH_URI"),
+        "token_uri": os.getenv("GOOGLE_TOKEN_URI"),
+        "auth_provider_x509_cert_url": os.getenv("GOOGLE_AUTH_PROVIDER_X509_CERT_URL"),
+        "client_x509_cert_url": os.getenv("GOOGLE_CLIENT_X509_CERT_URL"),
+        "universe_domain": os.getenv("GOOGLE_UNIVERSE_DOMAIN"),
+    }
+    if not all(google_creds.values()):
+        raise EnvironmentError("One or more Google credential environment variables are not set.")
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as temp_cred_file:
+        json.dump(google_creds, temp_cred_file)
+        temp_cred_file_path = temp_cred_file.name
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = temp_cred_file_path
 
 
     client = BetaAnalyticsDataClient()
@@ -115,7 +131,10 @@ def fetch_product_score(market_name) :
         try:
             # Assuming 'meta' is a JSON string or dictionary
             if pd.notna(meta_value):  # Check if 'meta' is not NaN
-                meta_dict = json.loads(meta_value) if isinstance(meta_value, str) else meta_value
+                if isinstance(meta_value, str):
+                    meta_dict = json.loads(meta_value)
+                else:
+                    meta_dict = meta_value
                 return meta_dict.get('custom', {}).get('soldout', None)
             return False
         except (ValueError, TypeError):

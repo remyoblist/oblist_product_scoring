@@ -27,15 +27,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt  # Make sure requirements.txt is updated
 
-    - name: Set up Google Cloud credentials
+    - name: Set Google Service Account Secrets as Environment Variables
       run: |
-        echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 --decode > $GITHUB_WORKSPACE/gcloud-service-key.json
-        echo "GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/gcloud-service-key.json" >> $GITHUB_ENV
-        chmod 600 $GITHUB_WORKSPACE/gcloud-service-key.json
-
-    - name: Check length of decoded file
-      run: |
-        echo "Decoded file length: $(wc -c < $GITHUB_WORKSPACE/gcloud-service-key.json)"
+        echo "GOOGLE_TYPE=${{ secrets.GOOGLE_TYPE }}" >> $GITHUB_ENV
+        echo "GOOGLE_PROJECT_ID=${{ secrets.GOOGLE_PROJECT_ID }}" >> $GITHUB_ENV
+        echo "GOOGLE_PRIVATE_KEY_ID=${{ secrets.GOOGLE_PRIVATE_KEY_ID }}" >> $GITHUB_ENV
+        echo "GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}" >> $GITHUB_ENV
+        echo "GOOGLE_CLIENT_EMAIL=${{ secrets.GOOGLE_CLIENT_EMAIL }}" >> $GITHUB_ENV
+        echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> $GITHUB_ENV
+        echo "GOOGLE_AUTH_URI=${{ secrets.GOOGLE_AUTH_URI }}" >> $GITHUB_ENV
+        echo "GOOGLE_TOKEN_URI=${{ secrets.GOOGLE_TOKEN_URI }}" >> $GITHUB_ENV
+        echo "GOOGLE_AUTH_PROVIDER_X509_CERT_URL=${{ secrets.GOOGLE_AUTH_PROVIDER_X509_CERT_URL }}" >> $GITHUB_ENV
+        echo "GOOGLE_CLIENT_X509_CERT_URL=${{ secrets.GOOGLE_CLIENT_X509_CERT_URL }}" >> $GITHUB_ENV
+        echo "GOOGLE_UNIVERSE_DOMAIN=${{ secrets.GOOGLE_UNIVERSE_DOMAIN }}" >> $GITHUB_ENV
 
     - name: Run the Python script
       run: |
