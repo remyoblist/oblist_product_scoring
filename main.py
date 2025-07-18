@@ -550,12 +550,13 @@ def main():
     "shopify_theoblistproducts_united_states_en",
     "shopify_theoblistproducts_united_states_fr"
 ]
-    GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+    # Remove usage of GOOGLE_APPLICATION_CREDENTIALS here, as it is now handled inside fetch_product_score
 
     # Use ThreadPoolExecutor for threading
+    import concurrent.futures
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # Submit tasks to the executor for each market
-        futures = [executor.submit(process_market, market, GOOGLE_APPLICATION_CREDENTIALS) for market in main_markets]
+        futures = [executor.submit(process_market, market, None) for market in main_markets]
 
         # Optionally, wait for all threads to complete
         for future in concurrent.futures.as_completed(futures):
