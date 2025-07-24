@@ -108,12 +108,47 @@ import pandas as pd
 import itertools
 from datetime import datetime, timedelta
 from google.api_core import exceptions
+import json
+import tempfile
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import DateRange, Dimension, Metric, RunReportRequest
 
+# Try to load .env file for local development
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # dotenv not installed, skip
+    pass
+
 Boost_Value = 0.2
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'testmedium.json'
+# Reconstruct the credentials JSON from individual env variables
+google_creds = {
+    "type": os.getenv("GOOGLE_TYPE"),
+    "project_id": os.getenv("GOOGLE_PROJECT_ID"),
+    "private_key_id": os.getenv("GOOGLE_PRIVATE_KEY_ID"),
+    "private_key": os.getenv("GOOGLE_PRIVATE_KEY").replace('\\n', '\n') if os.getenv("GOOGLE_PRIVATE_KEY") else None,
+    "client_email": os.getenv("GOOGLE_CLIENT_EMAIL"),
+    "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+    "auth_uri": os.getenv("GOOGLE_AUTH_URI"),
+    "token_uri": os.getenv("GOOGLE_TOKEN_URI"),
+    "auth_provider_x509_cert_url": os.getenv("GOOGLE_AUTH_PROVIDER_X509_CERT_URL"),
+    "client_x509_cert_url": os.getenv("GOOGLE_CLIENT_X509_CERT_URL"),
+    "universe_domain": os.getenv("GOOGLE_UNIVERSE_DOMAIN"),
+}
+if not all(google_creds.values()):
+    print("Missing environment variables in BrandPopularity:")
+    for key, value in google_creds.items():
+        if value is None:
+            print(f"  {key.upper().replace('_', '_')}: Not set")
+    print("Full credentials dict:", google_creds)
+    raise EnvironmentError("One or more Google credential environment variables are not set.")
+with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as temp_cred_file:
+    json.dump(google_creds, temp_cred_file)
+    temp_cred_file_path = temp_cred_file.name
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = temp_cred_file_path
+
 client = BetaAnalyticsDataClient()
 
 enddate = (datetime.now() - timedelta(days=28)).strftime("%Y-%m-%d")
