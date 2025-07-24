@@ -564,6 +564,7 @@ def main():
 ]
     # Remove usage of GOOGLE_APPLICATION_CREDENTIALS here, as it is now handled inside fetch_product_score
 
+    print(" This is real main method")
     # Use ThreadPoolExecutor for threading
     import concurrent.futures
     with concurrent.futures.ThreadPoolExecutor() as executor:
