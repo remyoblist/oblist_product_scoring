@@ -6,6 +6,14 @@ from google.api_core import exceptions
 import json
 import tempfile
 
+# Try to load .env file for local development
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # dotenv not installed, skip
+    pass
+
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import DateRange, Dimension, Metric, RunReportRequest
 
@@ -24,9 +32,13 @@ def fetch_product_score(market_name) :
         "token_uri": os.getenv("GOOGLE_TOKEN_URI"),
         "auth_provider_x509_cert_url": os.getenv("GOOGLE_AUTH_PROVIDER_X509_CERT_URL"),
         "client_x509_cert_url": os.getenv("GOOGLE_CLIENT_X509_CERT_URL"),
-        "universe_domain": os.getenv("GOOGLE_UNIVERSE_DOMAIN"),
-    }
+        "universe_domain": os.getenv("GOOGLE_UNIVERSE_DOMAIN"),    }
     if not all(google_creds.values()):
+        print("Missing environment variables:")
+        for key, value in google_creds.items():
+            if value is None:
+                print(f"  {key.upper().replace('_', '_')}: Not set")
+        print("Full credentials dict:", google_creds)
         raise EnvironmentError("One or more Google credential environment variables are not set.")
     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as temp_cred_file:
         json.dump(google_creds, temp_cred_file)
